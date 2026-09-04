@@ -28,11 +28,11 @@
         .card-stat:hover {
             transform: translateY(-3px);
         }
-        .bg-gradient-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; }
-        .bg-gradient-success { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+        .bg-gradient-primary { background: linear-gradient(135deg,#2563eb, #1d4ed8); color: white; }
+        .bg-gradient-success { background: linear-gradient(135deg,#10b981, #059669); color: white; }
         .bg-gradient-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
-        .bg-gradient-info { background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; }
-        .bg-gradient-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+        .bg-gradient-info { background: linear-gradient(135deg,#06b6d4, #0891b2); color: white; }
+        .bg-gradient-purple { background: linear-gradient(135deg,#8b5cf6, #7c3aed); color: white; }
 
         .stat-icon {
             font-size: 2.2rem;
@@ -219,12 +219,14 @@
             <table class="table table-hover align-middle mb-0" id="table-external">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 25%;">รายการ</th>
+                        <th style="width: 22%;">รายการ</th>
                         <th>เลขหนังสือโอน</th>
+                        <th>หน่วยงานจัดสรร</th>
+                        <th class="text-center">หนังสือแจ้งโอนเงิน</th>
                         <th class="text-end">จัดสรร</th>
                         <th class="text-end">เบิกจ่าย</th>
                         <th class="text-end">คงเหลือ</th>
-                        <th style="width: 18%;">ความก้าวหน้า (% เบิกจ่าย)</th>
+                        <th style="width: 15%;">ความก้าวหน้า (% เบิกจ่าย)</th>
                         <th>ผู้รับผิดชอบ</th>
                     </tr>
                 </thead>
@@ -357,6 +359,9 @@
                 }
             } else if (currentSection === 3) {
                 if (/^\d+\./.test(firstCol)) {
+                    let rawLink = row[7] && row[7].startsWith('http') ? row[7] : (row[8] && row[8].startsWith('http') ? row[8] : '');
+                    let rawOwner = row[8] && !row[8].startsWith('http') ? row[8] : (row[7] && !row[7].startsWith('http') ? row[7] : '');
+
                     externalData.push({
                         name: firstCol,
                         docNo: row[1] ? row[1].replace(/"/g, '') : '',
@@ -364,7 +369,9 @@
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
                         percent: parseNum(row[5]),
-                        owner: row[7] ? row[7].replace(/"/g, '') : ''
+                        agency: row[6] ? row[6].replace(/"/g, '') : '',
+                        link: rawLink.replace(/"/g, ''),
+                        owner: rawOwner.replace(/"/g, '')
                     });
                 }
             }
@@ -403,7 +410,7 @@
         document.getElementById('kpi-remain').innerText = formatCurrency(grandTotal.remain);
         document.getElementById('kpi-percent').innerText = grandTotal.percent.toFixed(2) + '%';
 
-        // วาดตาราง (ส่งค่าผลรวมเข้าไปด้วย)
+        // วาดตาราง
         renderTable1(adminData, adminTot);
         renderTable2(projectData, projTot);
         renderTable3(externalData, extTot);
@@ -473,6 +480,8 @@
             <tr class="table-secondary fw-bold border-bottom border-2">
                 <td>รวมทั้งสิ้น</td>
                 <td class="small text-muted">-</td>
+                <td class="small text-muted">-</td>
+                <td class="text-center">-</td>
                 <td class="text-end">${formatCurrency(tot.allocated)}</td>
                 <td class="text-end text-success font-monospace">${formatCurrency(tot.spent)}</td>
                 <td class="text-end text-danger font-monospace">${formatCurrency(tot.remain)}</td>
@@ -483,12 +492,17 @@
         let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
-                <td class="small text-muted">${item.docNo}</td>
+                <td class="small text-muted">${item.docNo || '-'}</td>
+                <td class="small">${item.agency || '-'}</td>
+                <td class="text-center">
+                    ${item.link && item.link.startsWith('http') ? 
+                        `<a href="${item.link}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-pdf me-1"></i> หนังสือโอน</a>` : '-'}
+                </td>
                 <td class="text-end">${formatCurrency(item.allocated)}</td>
                 <td class="text-end text-success font-monospace fw-bold">${formatCurrency(item.spent)}</td>
                 <td class="text-end text-danger font-monospace">${formatCurrency(item.remain)}</td>
                 <td>${renderProgressBar(item.percent)}</td>
-                <td class="small">${item.owner}</td>
+                <td class="small">${item.owner || '-'}</td>
             </tr>
         `).join('');
         tbody.innerHTML = summaryRow + rows;
