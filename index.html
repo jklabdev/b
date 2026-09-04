@@ -59,11 +59,6 @@
             position: relative;
             height: 320px;
         }
-        .badge-status {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
     </style>
 </head>
 <body class="py-4">
@@ -237,14 +232,12 @@
 </div>
 
 <script>
-    // URL Google Sheet CSV Export
     const SHEET_ID = '1g-fDtT057LwKLiZFrmKmIWt9ib7cyeUWTYQwQYSGsTA';
     const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=gid=0`;
 
     let barChartObj = null;
     let doughnutChartObj = null;
 
-    // Helper: แปลงข้อความตัวเลขเป็น Number
     function parseNum(val) {
         if (!val) return 0;
         let cleaned = val.toString().replace(/,/g, '').replace(/"/g, '').trim();
@@ -252,12 +245,10 @@
         return isNaN(num) ? 0 : num;
     }
 
-    // Helper: จัดฟอร์แมตตัวเลขแบบสกุลเงิน
     function formatCurrency(num) {
         return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // Helper: สร้าง HTML Progress Bar
     function renderProgressBar(percent) {
         let pct = Math.min(Math.max(percent, 0), 100);
         let bgClass = 'bg-primary';
@@ -276,7 +267,6 @@
         `;
     }
 
-    // ฟังก์ชันดึงข้อมูลจาก Google Sheet
     async function loadData() {
         try {
             const response = await fetch(CSV_URL);
@@ -288,7 +278,6 @@
         }
     }
 
-    // Parser แปลงไฟล์ CSV เป็น Array
     function parseCSV(text) {
         let lines = text.split('\n');
         return lines.map(line => {
@@ -317,7 +306,7 @@
         let projectData = [];
         let externalData = [];
 
-        let currentSection = 0; // 1: Admin, 2: Project, 3: External
+        let currentSection = 0;
 
         rows.forEach(row => {
             let firstCol = row[0] ? row[0].replace(/"/g, '').trim() : '';
@@ -353,31 +342,41 @@
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
                         percent: parseNum(row[5]),
-                        link: row[9] ? row[9].replace(/"/g, '') : '',
-                        owner: row[10] ? row[10].replace(/"/g, '') : ''
+                        link: row[9] ? row[9].replace(/"/g, '').trim() : '',
+                        owner: row[10] ? row[10].replace(/"/g, '').trim() : ''
                     });
                 }
             } else if (currentSection === 3) {
                 if (/^\d+\./.test(firstCol)) {
-                    let rawLink = row[7] && row[7].startsWith('http') ? row[7] : (row[8] && row[8].startsWith('http') ? row[8] : '');
-                    let rawOwner = row[8] && !row[8].startsWith('http') ? row[8] : (row[7] && !row[7].startsWith('http') ? row[7] : '');
+                    let linkVal = '';
+                    let ownerVal = '';
+                    let agencyVal = row[6] ? row[6].replace(/"/g, '').trim() : '';
+
+                    for (let i = 7; i < row.length; i++) {
+                        let cell = row[i] ? row[i].replace(/"/g, '').trim() : '';
+                        if (!cell) continue;
+                        if (cell.startsWith('http://') || cell.startsWith('https://') || cell.includes('drive.google.com')) {
+                            linkVal = cell;
+                        } else if (!ownerVal && !/^\d+$/.test(cell)) {
+                            ownerVal = cell;
+                        }
+                    }
 
                     externalData.push({
                         name: firstCol,
-                        docNo: row[1] ? row[1].replace(/"/g, '') : '',
+                        docNo: row[1] ? row[1].replace(/"/g, '').trim() : '',
                         allocated: parseNum(row[2]),
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
                         percent: parseNum(row[5]),
-                        agency: row[6] ? row[6].replace(/"/g, '') : '',
-                        link: rawLink.replace(/"/g, ''),
-                        owner: rawOwner.replace(/"/g, '')
+                        agency: agencyVal,
+                        link: linkVal,
+                        owner: ownerVal
                     });
                 }
             }
         });
 
-        // คำนวณยอดรวมแต่ละหมวด
         const sumSection = (arr) => arr.reduce((acc, curr) => ({
             plan: acc.plan + (curr.plan || 0),
             allocated: acc.allocated + (curr.allocated || 0),
@@ -389,12 +388,10 @@
         const projTot = sumSection(projectData);
         const extTot = sumSection(externalData);
 
-        // คำนวณ % เบิกจ่ายของแต่ละตาราง
         adminTot.percent = adminTot.allocated > 0 ? (adminTot.spent / adminTot.allocated) * 100 : 0;
         projTot.percent = projTot.allocated > 0 ? (projTot.spent / projTot.allocated) * 100 : 0;
         extTot.percent = extTot.allocated > 0 ? (extTot.spent / extTot.allocated) * 100 : 0;
 
-        // ยอดรวมภาพรวมทั้งหมด
         const grandTotal = {
             plan: adminTot.plan + projTot.plan + extTot.allocated,
             allocated: adminTot.allocated + projTot.allocated + extTot.allocated,
@@ -403,19 +400,16 @@
         };
         grandTotal.percent = grandTotal.allocated > 0 ? (grandTotal.spent / grandTotal.allocated) * 100 : 0;
 
-        // แสดงผล KPI Cards
         document.getElementById('kpi-plan').innerText = formatCurrency(grandTotal.plan);
         document.getElementById('kpi-allocated').innerText = formatCurrency(grandTotal.allocated);
         document.getElementById('kpi-spent').innerText = formatCurrency(grandTotal.spent);
         document.getElementById('kpi-remain').innerText = formatCurrency(grandTotal.remain);
         document.getElementById('kpi-percent').innerText = grandTotal.percent.toFixed(2) + '%';
 
-        // วาดตาราง
         renderTable1(adminData, adminTot);
         renderTable2(projectData, projTot);
         renderTable3(externalData, extTot);
 
-        // วาดแผนภูมิ
         renderCharts(adminTot, projTot, extTot, grandTotal);
     }
 
@@ -464,9 +458,9 @@
                 <td class="text-end text-success font-monospace fw-bold">${formatCurrency(item.spent)}</td>
                 <td class="text-end text-danger font-monospace">${formatCurrency(item.remain)}</td>
                 <td>${renderProgressBar(item.percent)}</td>
-                <td class="small">${item.owner}</td>
+                <td class="small">${item.owner || '-'}</td>
                 <td class="text-center">
-                    ${item.link && item.link.startsWith('http') ? 
+                    ${item.link && (item.link.startsWith('http://') || item.link.startsWith('https://')) ? 
                         `<a href="${item.link}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-pdf"></i> โครงการ</a>` : '-'}
                 </td>
             </tr>
@@ -495,8 +489,8 @@
                 <td class="small text-muted">${item.docNo || '-'}</td>
                 <td class="small">${item.agency || '-'}</td>
                 <td class="text-center">
-                    ${item.link && item.link.startsWith('http') ? 
-                        `<a href="${item.link}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-file-pdf me-1"></i> หนังสือโอน</a>` : '-'}
+                    ${item.link && (item.link.startsWith('http://') || item.link.startsWith('https://')) ? 
+                        `<a href="${item.link}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-file-pdf me-1"></i> เปิดหนังสือ</a>` : '-'}
                 </td>
                 <td class="text-end">${formatCurrency(item.allocated)}</td>
                 <td class="text-end text-success font-monospace fw-bold">${formatCurrency(item.spent)}</td>
@@ -509,7 +503,6 @@
     }
 
     function renderCharts(adminTot, projTot, extTot, grandTotal) {
-        // Chart 1: Bar Chart เปรียบเทียบตามประเภทงบ
         const ctxBar = document.getElementById('barChart').getContext('2d');
         if (barChartObj) barChartObj.destroy();
 
@@ -552,7 +545,6 @@
             }
         });
 
-        // Chart 2: Doughnut Chart สัดส่วนเบิกจ่าย vs คงเหลือ
         const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
         if (doughnutChartObj) doughnutChartObj.destroy();
 
@@ -588,7 +580,6 @@
         });
     }
 
-    // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
     document.addEventListener('DOMContentLoaded', loadData);
 </script>
 
