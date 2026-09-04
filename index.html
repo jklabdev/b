@@ -85,42 +85,6 @@
         </button>
     </div>
 
-    <!-- Visitor Statistics Section -->
-    <div class="card border-0 shadow-sm rounded-3 mb-4 p-3 bg-white">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 border-bottom pb-2">
-            <h5 class="fw-bold text-dark mb-0">
-                <i class="fa-solid fa-users-line me-2 text-primary"></i>สถิติผู้เข้าใช้บริการ (ปีงบประมาณ พ.ศ. 2570)
-            </h5>
-            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#monthlyStatsCollapse">
-                <i class="fa-solid fa-calendar-days me-1"></i> ดูสถิติแยกตามรายเดือน (ต.ค. 69 - ก.ย. 70)
-            </button>
-        </div>
-
-        <div class="d-flex justify-content-center justify-content-md-start align-items-center flex-wrap gap-3">
-            <div class="visitor-stat-card text-center">
-                <div class="small text-muted mb-1"><i class="fa-solid fa-calendar-day me-1 text-info"></i>วันนี้</div>
-                <div class="fw-bold fs-4 text-info" id="stat-today">0</div>
-            </div>
-            <div class="visitor-stat-card text-center">
-                <div class="small text-muted mb-1"><i class="fa-solid fa-calendar-alt me-1 text-warning"></i>เดือนนี้</div>
-                <div class="fw-bold fs-4 text-warning" id="stat-month">0</div>
-            </div>
-            <div class="visitor-stat-card text-center">
-                <div class="small text-muted mb-1"><i class="fa-solid fa-users me-1 text-success"></i>ผู้เข้าชมทั้งหมด</div>
-                <div class="fw-bold fs-4 text-success" id="stat-total">0</div>
-            </div>
-        </div>
-
-        <div class="collapse mt-3" id="monthlyStatsCollapse">
-            <div class="p-3 bg-light rounded-3 border">
-                <div class="fw-bold small text-secondary mb-2"><i class="fa-solid fa-list-check me-1"></i>สถิติรายเดือน ประจำปีงบประมาณ พ.ศ. 2570 (ตุลาคม 2569 - กันยายน 2570)</div>
-                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2 small" id="monthly-breakdown-list">
-                    <!-- Dynamic Render -->
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Summary KPI Cards -->
     <div class="row g-3 mb-4">
         <div class="col-xl-2 col-md-4 col-sm-6">
@@ -274,10 +238,46 @@
             </table>
         </div>
     </div>
+
+    <!-- Visitor Statistics Section (ย้ายมาไว้ด้านล่าง) -->
+    <div class="card border-0 shadow-sm rounded-3 mt-4 mb-2 p-3 bg-white">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 border-bottom pb-2">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="fa-solid fa-users-line me-2 text-primary"></i>สถิติผู้เข้าใช้บริการ (ปีงบประมาณ พ.ศ. 2570)
+            </h5>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#monthlyStatsCollapse">
+                <i class="fa-solid fa-calendar-days me-1"></i> ดูสถิติแยกตามรายเดือน (ต.ค. 69 - ก.ย. 70)
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-center justify-content-md-start align-items-center flex-wrap gap-3">
+            <div class="visitor-stat-card text-center">
+                <div class="small text-muted mb-1"><i class="fa-solid fa-calendar-day me-1 text-info"></i>วันนี้</div>
+                <div class="fw-bold fs-4 text-info" id="stat-today">0</div>
+            </div>
+            <div class="visitor-stat-card text-center">
+                <div class="small text-muted mb-1"><i class="fa-solid fa-calendar-alt me-1 text-warning"></i>เดือนนี้</div>
+                <div class="fw-bold fs-4 text-warning" id="stat-month">0</div>
+            </div>
+            <div class="visitor-stat-card text-center">
+                <div class="small text-muted mb-1"><i class="fa-solid fa-users me-1 text-success"></i>ผู้เข้าชมทั้งหมด</div>
+                <div class="fw-bold fs-4 text-success" id="stat-total">0</div>
+            </div>
+        </div>
+
+        <div class="collapse mt-3" id="monthlyStatsCollapse">
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="fw-bold small text-secondary mb-2"><i class="fa-solid fa-list-check me-1"></i>สถิติรายเดือน ประจำปีงบประมาณ พ.ศ. 2570 (ตุลาคม 2569 - กันยายน 2570)</div>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2 small" id="monthly-breakdown-list">
+                    <!-- Dynamic Render -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Footer Section -->
-<footer class="bg-dark text-white py-4 mt-5 border-top border-secondary">
+<footer class="bg-dark text-white py-4 mt-4 border-top border-secondary">
     <div class="container text-center">
         <div class="mb-2">
             <h5 class="fw-bold mb-1"><i class="fa-solid fa-landmark me-2 text-warning"></i>กลุ่มนโยบายและแผน</h5>
@@ -643,7 +643,7 @@
         });
     }
 
-    // ระบบนับสถิติผู้เข้าชมจริง (ปรับปรุงให้ถูกต้องและสอดคล้องตามจริง)
+    // ระบบนับสถิติผู้เข้าชมจริง
     function initVisitorStats() {
         const now = new Date();
         const year = now.getFullYear();
@@ -651,7 +651,6 @@
         const todayKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
         const currentMonthKey = `${year}-${month}`; // YYYY-MM
 
-        // ดึงข้อมูลสถิติที่บันทึกไว้ในเบราว์เซอร์
         let statsData = JSON.parse(localStorage.getItem('kan4_real_visitor_stats')) || {
             todayDate: todayKey,
             todayCount: 0,
@@ -659,13 +658,11 @@
             totalCount: 0
         };
 
-        // หากข้ามวันใหม่ ให้รีเซ็ตยอดของวันนี้เป็น 0
         if (statsData.todayDate !== todayKey) {
             statsData.todayDate = todayKey;
             statsData.todayCount = 0;
         }
 
-        // บันทึกการเข้าชม 1 ครั้งต่อ 1 เบราว์เซอร์เซสชัน
         let hasVisited = sessionStorage.getItem('kan4_visited_session_active');
         if (!hasVisited) {
             sessionStorage.setItem('kan4_visited_session_active', 'true');
@@ -675,7 +672,6 @@
             localStorage.setItem('kan4_real_visitor_stats', JSON.stringify(statsData));
         }
 
-        // ยอดเดือนนี้ต้องไม่น้อยกว่ายอดของวันนี้
         let thisMonthCount = statsData.monthlyCount[currentMonthKey] || 0;
         if (thisMonthCount < statsData.todayCount) {
             thisMonthCount = statsData.todayCount;
@@ -683,12 +679,10 @@
             localStorage.setItem('kan4_real_visitor_stats', JSON.stringify(statsData));
         }
 
-        // แสดงผลตัวเลขวันนี้, เดือนนี้, และรวมทั้งหมด
         document.getElementById('stat-today').innerText = statsData.todayCount.toLocaleString('th-TH');
         document.getElementById('stat-month').innerText = thisMonthCount.toLocaleString('th-TH');
         document.getElementById('stat-total').innerText = statsData.totalCount.toLocaleString('th-TH');
 
-        // ผูกรายการเดือนตามปีงบประมาณ 2570 (ตุลาคม 2569 - กันยายน 2570)
         const fiscalMonths = [
             { key: '2026-10', label: 'ต.ค. 2569' },
             { key: '2026-11', label: 'พ.ย. 2569' },
@@ -709,12 +703,10 @@
 
         fiscalMonths.forEach(m => {
             let countVal = 0;
-            
-            // แสดงผลเฉพาะเดือนที่ถึงแล้วหรือผ่านไปแล้ว หากเดือนยังมาไม่ถึงจะแสดง 0
             if (m.key <= currentMonthKey) {
                 countVal = statsData.monthlyCount[m.key] || 0;
             } else {
-                countVal = 0; // เดือนในอนาคตที่ยังมาไม่ถึง
+                countVal = 0;
             }
 
             monthlyHTML += `
