@@ -382,6 +382,11 @@
         const projTot = sumSection(projectData);
         const extTot = sumSection(externalData);
 
+        // คำนวณ % เบิกจ่ายของแต่ละตาราง
+        adminTot.percent = adminTot.allocated > 0 ? (adminTot.spent / adminTot.allocated) * 100 : 0;
+        projTot.percent = projTot.allocated > 0 ? (projTot.spent / projTot.allocated) * 100 : 0;
+        extTot.percent = extTot.allocated > 0 ? (extTot.spent / extTot.allocated) * 100 : 0;
+
         // ยอดรวมภาพรวมทั้งหมด
         const grandTotal = {
             plan: adminTot.plan + projTot.plan + extTot.allocated,
@@ -398,18 +403,28 @@
         document.getElementById('kpi-remain').innerText = formatCurrency(grandTotal.remain);
         document.getElementById('kpi-percent').innerText = grandTotal.percent.toFixed(2) + '%';
 
-        // วาดตาราง
-        renderTable1(adminData);
-        renderTable2(projectData);
-        renderTable3(externalData);
+        // วาดตาราง (ส่งค่าผลรวมเข้าไปด้วย)
+        renderTable1(adminData, adminTot);
+        renderTable2(projectData, projTot);
+        renderTable3(externalData, extTot);
 
         // วาดแผนภูมิ
         renderCharts(adminTot, projTot, extTot, grandTotal);
     }
 
-    function renderTable1(data) {
+    function renderTable1(data, tot) {
         let tbody = document.querySelector('#table-admin tbody');
-        tbody.innerHTML = data.map(item => `
+        let summaryRow = `
+            <tr class="table-secondary fw-bold border-bottom border-2">
+                <td>รวมทั้งสิ้น</td>
+                <td class="text-end">${formatCurrency(tot.plan)}</td>
+                <td class="text-end">${formatCurrency(tot.allocated)}</td>
+                <td class="text-end text-success font-monospace">${formatCurrency(tot.spent)}</td>
+                <td class="text-end text-danger font-monospace">${formatCurrency(tot.remain)}</td>
+                <td>${renderProgressBar(tot.percent)}</td>
+            </tr>
+        `;
+        let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
                 <td class="text-end">${formatCurrency(item.plan)}</td>
@@ -419,11 +434,23 @@
                 <td>${renderProgressBar(item.percent)}</td>
             </tr>
         `).join('');
+        tbody.innerHTML = summaryRow + rows;
     }
 
-    function renderTable2(data) {
+    function renderTable2(data, tot) {
         let tbody = document.querySelector('#table-project tbody');
-        tbody.innerHTML = data.map(item => `
+        let summaryRow = `
+            <tr class="table-secondary fw-bold border-bottom border-2">
+                <td>รวมทั้งสิ้น</td>
+                <td class="text-end">${formatCurrency(tot.allocated)}</td>
+                <td class="text-end text-success font-monospace">${formatCurrency(tot.spent)}</td>
+                <td class="text-end text-danger font-monospace">${formatCurrency(tot.remain)}</td>
+                <td>${renderProgressBar(tot.percent)}</td>
+                <td class="small">-</td>
+                <td class="text-center">-</td>
+            </tr>
+        `;
+        let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
                 <td class="text-end">${formatCurrency(item.allocated)}</td>
@@ -437,11 +464,23 @@
                 </td>
             </tr>
         `).join('');
+        tbody.innerHTML = summaryRow + rows;
     }
 
-    function renderTable3(data) {
+    function renderTable3(data, tot) {
         let tbody = document.querySelector('#table-external tbody');
-        tbody.innerHTML = data.map(item => `
+        let summaryRow = `
+            <tr class="table-secondary fw-bold border-bottom border-2">
+                <td>รวมทั้งสิ้น</td>
+                <td class="small text-muted">-</td>
+                <td class="text-end">${formatCurrency(tot.allocated)}</td>
+                <td class="text-end text-success font-monospace">${formatCurrency(tot.spent)}</td>
+                <td class="text-end text-danger font-monospace">${formatCurrency(tot.remain)}</td>
+                <td>${renderProgressBar(tot.percent)}</td>
+                <td class="small">-</td>
+            </tr>
+        `;
+        let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
                 <td class="small text-muted">${item.docNo}</td>
@@ -452,6 +491,7 @@
                 <td class="small">${item.owner}</td>
             </tr>
         `).join('');
+        tbody.innerHTML = summaryRow + rows;
     }
 
     function renderCharts(adminTot, projTot, extTot, grandTotal) {
