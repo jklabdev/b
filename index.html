@@ -78,7 +78,7 @@
             <h3 class="fw-bold mb-0 text-primary">
                 <i class="fa-solid fa-chart-pie me-2"></i>รายงานการใช้จ่ายงบประมาณตามแผนปฏิบัติการ
             </h3>
-            <p class="text-muted mb-0">ประจำปีงบประมาณ พ.ศ. 2570 | ข้อมูลเชื่อมโยงจากระบบ AMSS++</p>
+            <p class="text-muted mb-0">ประจำปีงบประมาณ พ.ศ. 2570 | ข้อมูลจากระบบ AMSS++</p>
         </div>
         <button class="btn btn-outline-primary rounded-pill px-3" onclick="loadData()">
             <i class="fa-solid fa-rotate me-1"></i> รีเฟรชข้อมูล
@@ -223,8 +223,7 @@
             <table class="table table-hover align-middle mb-0" id="table-external">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 22%;">รายการ</th>
-                        <th>เลขหนังสือโอน</th>
+                        <th style="width: 25%;">รายการ</th>
                         <th>หน่วยงานจัดสรร</th>
                         <th class="text-center">หนังสือแจ้งโอนเงิน</th>
                         <th class="text-end">จัดสรร</th>
@@ -418,18 +417,11 @@
                 }
             } else if (currentSection === 3) {
                 if (/^\d+\./.test(firstCol)) {
-                    let rawDocNo = cleanText(row[1]);
                     let agencyVal = cleanText(row[6]);
                     let linkVal = '';
                     let ownerVal = '';
-                    let docNoVal = '';
 
-                    // 1. ตรวจสอบ row[1] ก่อน หากเป็นข้อความเลขหนังสือ
-                    if (rawDocNo && isNaN(parseNum(rawDocNo)) && !rawDocNo.startsWith('http')) {
-                        docNoVal = rawDocNo;
-                    }
-
-                    // 2. สแกนข้อมูลทุกคอลัมน์เพื่อดึง Link, DocNo (สำรอง), Agency และ Owner
+                    // สแกนค้นหาข้อมูล ลิงก์, หน่วยงานจัดสรร และผู้รับผิดชอบ
                     for (let i = 1; i < row.length; i++) {
                         let cell = cleanText(row[i]);
                         if (!cell) continue;
@@ -440,16 +432,6 @@
                             continue;
                         }
 
-                        // ค้นหาเลขหนังสือโอนเงินสำรอง (กรณีไม่อยู่ใน row[1])
-                        if (!docNoVal) {
-                            if (cell.includes('ศธ') || cell.includes('ที่') || cell.includes('/') || /^ว\d+/i.test(cell) || cell.includes('หนังสือ')) {
-                                if (!cell.includes('สพฐ') && !cell.includes('สำนัก') && !cell.includes('กระทรวง') && !cell.includes('กลุ่ม')) {
-                                    docNoVal = cell;
-                                    continue;
-                                }
-                            }
-                        }
-
                         // ค้นหาหน่วยงานจัดสรรสำรอง
                         if (!agencyVal && (cell.includes('สพฐ') || cell.includes('สำนัก') || cell.includes('กระทรวง') || cell.includes('เขตพื้นที่'))) {
                             agencyVal = cell;
@@ -457,14 +439,13 @@
                         }
 
                         // ค้นหาผู้รับผิดชอบ
-                        if (i >= 7 && cell !== linkVal && cell !== docNoVal && cell !== agencyVal && !/^-?[0-9.,]+%?$/.test(cell)) {
+                        if (i >= 7 && cell !== linkVal && cell !== agencyVal && !/^-?[0-9.,]+%?$/.test(cell)) {
                             if (!ownerVal) ownerVal = cell;
                         }
                     }
 
                     externalData.push({
                         name: firstCol,
-                        docNo: docNoVal,
                         allocated: parseNum(row[2]),
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
@@ -575,7 +556,6 @@
         let summaryRow = `
             <tr class="table-secondary fw-bold border-bottom border-2">
                 <td>รวมทั้งสิ้น</td>
-                <td class="text-center small text-muted">-</td>
                 <td class="small text-muted">-</td>
                 <td class="text-center">-</td>
                 <td class="text-end">${formatCurrency(tot.allocated)}</td>
@@ -588,7 +568,6 @@
         let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
-                <td class="small">${item.docNo ? `<span class="badge bg-light text-dark border"><i class="fa-solid fa-file-signature text-secondary me-1"></i>${item.docNo}</span>` : '<span class="text-muted">-</span>'}</td>
                 <td class="small">${item.agency || '-'}</td>
                 <td class="text-center">
                     ${item.link && (item.link.startsWith('http://') || item.link.startsWith('https://')) ? 
