@@ -239,7 +239,7 @@
         </div>
     </div>
 
-    <!-- Visitor Statistics Section (ย้ายมาไว้ด้านล่าง) -->
+    <!-- Visitor Statistics Section -->
     <div class="card border-0 shadow-sm rounded-3 mt-4 mb-2 p-3 bg-white">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 border-bottom pb-2">
             <h5 class="fw-bold text-dark mb-0">
@@ -409,15 +409,18 @@
                 }
             } else if (currentSection === 3) {
                 if (/^\d+\./.test(firstCol)) {
+                    let docNoVal = row[1] ? row[1].replace(/"/g, '').trim() : '';
+                    let agencyVal = row[6] ? row[6].replace(/"/g, '').trim() : '';
                     let linkVal = '';
                     let ownerVal = '';
-                    let agencyVal = row[6] ? row[6].replace(/"/g, '').trim() : '';
 
                     for (let i = 7; i < row.length; i++) {
                         let cell = row[i] ? row[i].replace(/"/g, '').trim() : '';
                         if (!cell) continue;
                         if (cell.startsWith('http://') || cell.startsWith('https://') || cell.includes('drive.google.com')) {
                             linkVal = cell;
+                        } else if (!docNoVal && (cell.includes('ศธ') || cell.includes('/') || cell.includes('ที่'))) {
+                            docNoVal = cell;
                         } else if (!ownerVal && !/^\d+$/.test(cell)) {
                             ownerVal = cell;
                         }
@@ -425,7 +428,7 @@
 
                     externalData.push({
                         name: firstCol,
-                        docNo: row[1] ? row[1].replace(/"/g, '').trim() : '',
+                        docNo: docNoVal,
                         allocated: parseNum(row[2]),
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
@@ -536,7 +539,7 @@
         let summaryRow = `
             <tr class="table-secondary fw-bold border-bottom border-2">
                 <td>รวมทั้งสิ้น</td>
-                <td class="small text-muted">-</td>
+                <td class="text-center small text-muted">-</td>
                 <td class="small text-muted">-</td>
                 <td class="text-center">-</td>
                 <td class="text-end">${formatCurrency(tot.allocated)}</td>
@@ -549,7 +552,7 @@
         let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
-                <td class="small text-muted">${item.docNo || '-'}</td>
+                <td class="small">${item.docNo ? `<span class="badge bg-light text-dark border">${item.docNo}</span>` : '-'}</td>
                 <td class="small">${item.agency || '-'}</td>
                 <td class="text-center">
                     ${item.link && (item.link.startsWith('http://') || item.link.startsWith('https://')) ? 
