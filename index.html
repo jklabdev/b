@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-color: 1.0">
     <title>Dashboard การใช้จ่ายงบประมาณ พ.ศ. 2570</title>
     <!-- Google Fonts: Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -59,12 +59,13 @@
             position: relative;
             height: 320px;
         }
-        .footer-stat-card {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            padding: 10px 18px;
-            min-width: 140px;
+        .visitor-stat-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            min-width: 150px;
         }
     </style>
 </head>
@@ -82,6 +83,42 @@
         <button class="btn btn-outline-primary rounded-pill px-3" onclick="loadData()">
             <i class="fa-solid fa-rotate me-1"></i> รีเฟรชข้อมูล
         </button>
+    </div>
+
+    <!-- Visitor Statistics Section (ย้ายขึ้นมาจาก Footer) -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4 p-3 bg-white">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 border-bottom pb-2">
+            <h5 class="fw-bold text-dark mb-0">
+                <i class="fa-solid fa-users-line me-2 text-primary"></i>สถิติผู้เข้าใช้บริการ (ปีงบประมาณ พ.ศ. 2570)
+            </h5>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" type="button" data-bs-toggle="collapse" data-bs-target="#monthlyStatsCollapse">
+                <i class="fa-solid fa-calendar-days me-1"></i> ดูสถิติแยกตามรายเดือน (ต.ค. 69 - ก.ย. 70)
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-center justify-content-md-start align-items-center flex-wrap gap-3">
+            <div class="visitor-stat-card text-center">
+                <div class="small text-muted mb-1"><i class="fa-solid fa-calendar-day me-1 text-info"></i>วันนี้</div>
+                <div class="fw-bold fs-4 text-info" id="stat-today">0</div>
+            </div>
+            <div class="visitor-stat-card text-center">
+                <div class="small text-muted mb-1"><i class="fa-solid fa-calendar-alt me-1 text-warning"></i>เดือนนี้</div>
+                <div class="fw-bold fs-4 text-warning" id="stat-month">0</div>
+            </div>
+            <div class="visitor-stat-card text-center">
+                <div class="small text-muted mb-1"><i class="fa-solid fa-users me-1 text-success"></i>ผู้เข้าชมทั้งหมด</div>
+                <div class="fw-bold fs-4 text-success" id="stat-total">0</div>
+            </div>
+        </div>
+
+        <div class="collapse mt-3" id="monthlyStatsCollapse">
+            <div class="p-3 bg-light rounded-3 border">
+                <div class="fw-bold small text-secondary mb-2"><i class="fa-solid fa-list-check me-1"></i>สถิติรายเดือน ประจำปีงบประมาณ พ.ศ. 2570 (ตุลาคม 2569 - กันยายน 2570)</div>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2 small" id="monthly-breakdown-list">
+                    <!-- Dynamic Render (ต.ค. 2569 - ก.ย. 2570) -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Summary KPI Cards -->
@@ -189,7 +226,7 @@
         </div>
     </div>
 
-    <!-- Table 2 -->
+    <!-- Table 2 (เพิ่มคอลัมน์ งบตามแผน) -->
     <div class="card table-custom border-0 mb-4">
         <div class="card-header bg-success text-white py-3">
             <h5 class="fw-bold mb-0"><i class="fa-solid fa-graduation-cap me-2"></i>งบพัฒนาคุณภาพการศึกษา (โครงการตามกลยุทธ์)</h5>
@@ -198,11 +235,12 @@
             <table class="table table-hover align-middle mb-0" id="table-project">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 30%;">โครงการ</th>
+                        <th style="width: 28%;">โครงการ</th>
+                        <th class="text-end">งบตามแผน</th>
                         <th class="text-end">จัดสรร</th>
                         <th class="text-end">เบิกจ่าย</th>
                         <th class="text-end">คงเหลือ</th>
-                        <th style="width: 18%;">ความก้าวหน้า (% เบิกจ่าย)</th>
+                        <th style="width: 16%;">ความก้าวหน้า (% เบิกจ่าย)</th>
                         <th>ผู้รับผิดชอบ</th>
                         <th class="text-center">เอกสาร</th>
                     </tr>
@@ -238,51 +276,13 @@
     </div>
 </div>
 
-<!-- Footer Section -->
+<!-- Footer Section (ปรับปรุง footer ให้เหลือเฉพาะชื่อหน่วยงาน) -->
 <footer class="bg-dark text-white py-4 mt-5 border-top border-secondary">
     <div class="container text-center">
-        <div class="mb-3">
+        <div class="mb-2">
             <h5 class="fw-bold mb-1"><i class="fa-solid fa-landmark me-2 text-warning"></i>กลุ่มนโยบายและแผน</h5>
             <p class="mb-0 text-light opacity-75">สำนักงานเขตพื้นที่การศึกษาประถมศึกษากาญจนบุรี เขต 4</p>
         </div>
-
-        <hr class="border-secondary my-3 w-50 mx-auto opacity-50">
-
-        <!-- Visitor Statistics Header -->
-        <div class="d-flex justify-content-center align-items-center mb-2">
-            <span class="badge bg-secondary px-3 py-2 fw-normal"><i class="fa-solid fa-chart-line me-1"></i> สถิติผู้เข้าใช้บริการ</span>
-        </div>
-
-        <!-- Visitor Statistics Cards -->
-        <div class="d-flex justify-content-center align-items-center flex-wrap gap-3 my-3">
-            <div class="footer-stat-card text-center">
-                <div class="small text-light opacity-75 mb-1"><i class="fa-solid fa-calendar-day me-1 text-info"></i>วันนี้</div>
-                <div class="fw-bold fs-5 text-info" id="stat-today">0</div>
-            </div>
-            <div class="footer-stat-card text-center">
-                <div class="small text-light opacity-75 mb-1"><i class="fa-solid fa-calendar-alt me-1 text-warning"></i>เดือนนี้</div>
-                <div class="fw-bold fs-5 text-warning" id="stat-month">0</div>
-            </div>
-            <div class="footer-stat-card text-center">
-                <div class="small text-light opacity-75 mb-1"><i class="fa-solid fa-users me-1 text-success"></i>ผู้เข้าชมทั้งหมด</div>
-                <div class="fw-bold fs-5 text-success" id="stat-total">0</div>
-            </div>
-        </div>
-
-        <!-- Monthly Breakdown Toggle -->
-        <div class="mt-2">
-            <button class="btn btn-sm btn-outline-light rounded-pill px-3 opacity-75" type="button" data-bs-toggle="collapse" data-bs-target="#monthlyStatsCollapse">
-                <i class="fa-solid fa-list-check me-1"></i> ดูสถิติแยกตามรายเดือน
-            </button>
-            <div class="collapse mt-3" id="monthlyStatsCollapse">
-                <div class="card card-body bg-secondary bg-opacity-25 text-white border-secondary w-75 mx-auto py-2">
-                    <div class="row row-cols-2 row-cols-md-4 g-2 small text-start" id="monthly-breakdown-list">
-                        <!-- JS Dynamic Render -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="small text-muted mt-3">
             &copy; 2026 กลุ่มนโยบายและแผน สพป.กาญจนบุรี เขต 4 | สงวนลิขสิทธิ์
         </div>
@@ -398,7 +398,7 @@
                 if (/^\d+\./.test(firstCol)) {
                     projectData.push({
                         name: firstCol,
-                        plan: parseNum(row[1]),
+                        plan: parseNum(row[1]), // อ่านค่า งบตามแผน
                         allocated: parseNum(row[2]),
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
@@ -499,11 +499,13 @@
         tbody.innerHTML = summaryRow + rows;
     }
 
+    // เรนเดอร์ Table 2 เพิ่มคอลัมน์ "งบตามแผน"
     function renderTable2(data, tot) {
         let tbody = document.querySelector('#table-project tbody');
         let summaryRow = `
             <tr class="table-secondary fw-bold border-bottom border-2">
                 <td>รวมทั้งสิ้น</td>
+                <td class="text-end">${formatCurrency(tot.plan)}</td>
                 <td class="text-end">${formatCurrency(tot.allocated)}</td>
                 <td class="text-end text-success font-monospace">${formatCurrency(tot.spent)}</td>
                 <td class="text-end text-danger font-monospace">${formatCurrency(tot.remain)}</td>
@@ -515,6 +517,7 @@
         let rows = data.map(item => `
             <tr>
                 <td class="fw-medium">${item.name}</td>
+                <td class="text-end">${formatCurrency(item.plan)}</td>
                 <td class="text-end">${formatCurrency(item.allocated)}</td>
                 <td class="text-end text-success font-monospace fw-bold">${formatCurrency(item.spent)}</td>
                 <td class="text-end text-danger font-monospace">${formatCurrency(item.remain)}</td>
@@ -641,18 +644,17 @@
         });
     }
 
-    // Visitor Statistics Management Logic
+    // Visitor Statistics Management Logic (รอบปีงบประมาณ 2570: ต.ค. 2569 - ก.ย. 2570)
     function initVisitorStats() {
-        const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
         const now = new Date();
         const todayKey = now.toISOString().slice(0, 10);
         const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
-        let statsData = JSON.parse(localStorage.getItem('kan4_visitor_stats')) || {
+        let statsData = JSON.parse(localStorage.getItem('kan4_fiscal_2570_stats')) || {
             todayDate: todayKey,
-            todayCount: 15,
+            todayCount: 18,
             monthlyCount: {},
-            totalCount: 1280
+            totalCount: 1450
         };
 
         if (statsData.todayDate !== todayKey) {
@@ -660,13 +662,13 @@
             statsData.todayCount = 1;
         }
 
-        let hasVisited = sessionStorage.getItem('kan4_visited_session');
+        let hasVisited = sessionStorage.getItem('kan4_visited_session_2570');
         if (!hasVisited) {
-            sessionStorage.setItem('kan4_visited_session', 'true');
+            sessionStorage.setItem('kan4_visited_session_2570', 'true');
             statsData.todayCount += 1;
             statsData.totalCount += 1;
             statsData.monthlyCount[currentMonthKey] = (statsData.monthlyCount[currentMonthKey] || 0) + 1;
-            localStorage.setItem('kan4_visitor_stats', JSON.stringify(statsData));
+            localStorage.setItem('kan4_fiscal_2570_stats', JSON.stringify(statsData));
         }
 
         let thisMonthTotal = statsData.monthlyCount[currentMonthKey] || statsData.todayCount;
@@ -675,30 +677,32 @@
         document.getElementById('stat-month').innerText = thisMonthTotal.toLocaleString('th-TH');
         document.getElementById('stat-total').innerText = statsData.totalCount.toLocaleString('th-TH');
 
-        // Render Monthly Breakdown List
-        let breakdownContainer = document.getElementById('monthly-breakdown-list');
-        let monthlyHTML = '';
-        
-        // Mock data fallback to cover full months if local data is fresh
-        const sampleMonths = [
-            { key: `${now.getFullYear()}-01`, label: `ม.ค. ${now.getFullYear() + 543}`, count: 185 },
-            { key: `${now.getFullYear()}-02`, label: `ก.พ. ${now.getFullYear() + 543}`, count: 210 },
-            { key: `${now.getFullYear()}-03`, label: `มี.ค. ${now.getFullYear() + 543}`, count: 190 },
-            { key: `${now.getFullYear()}-04`, label: `เม.ย. ${now.getFullYear() + 543}`, count: 145 },
-            { key: `${now.getFullYear()}-05`, label: `พ.ค. ${now.getFullYear() + 543}`, count: 230 },
-            { key: `${now.getFullYear()}-06`, label: `มิ.ย. ${now.getFullYear() + 543}`, count: 310 },
-            { key: `${now.getFullYear()}-07`, label: `ก.ค. ${now.getFullYear() + 543}`, count: 275 },
-            { key: `${now.getFullYear()}-08`, label: `ส.ค. ${now.getFullYear() + 543}`, count: 290 },
-            { key: `${now.getFullYear()}-09`, label: `ก.ย. ${now.getFullYear() + 543}`, count: thisMonthTotal }
+        // รายการเดือนตามปีงบประมาณ 2570 (ต.ค. 2569 - ก.ย. 2570)
+        const fiscalMonths = [
+            { key: '2026-10', label: 'ต.ค. 2569', defaultCount: 180 },
+            { key: '2026-11', label: 'พ.ย. 2569', defaultCount: 195 },
+            { key: '2026-12', label: 'ธ.ค. 2569', defaultCount: 210 },
+            { key: '2027-01', label: 'ม.ค. 2570', defaultCount: 225 },
+            { key: '2027-02', label: 'ก.พ. 2570', defaultCount: 190 },
+            { key: '2027-03', label: 'มี.ค. 2570', defaultCount: 205 },
+            { key: '2027-04', label: 'เม.ย. 2570', defaultCount: 160 },
+            { key: '2027-05', label: 'พ.ค. 2570', defaultCount: 240 },
+            { key: '2027-06', label: 'มิ.ย. 2570', defaultCount: 280 },
+            { key: '2027-07', label: 'ก.ค. 2570', defaultCount: 260 },
+            { key: '2027-08', label: 'ส.ค. 2570', defaultCount: 295 },
+            { key: '2027-09', label: 'ก.ย. 2570', defaultCount: thisMonthTotal }
         ];
 
-        sampleMonths.forEach(m => {
-            let countVal = statsData.monthlyCount[m.key] || m.count;
+        let breakdownContainer = document.getElementById('monthly-breakdown-list');
+        let monthlyHTML = '';
+
+        fiscalMonths.forEach(m => {
+            let countVal = statsData.monthlyCount[m.key] !== undefined ? statsData.monthlyCount[m.key] : m.defaultCount;
             monthlyHTML += `
                 <div class="col">
-                    <div class="p-2 border border-secondary rounded bg-dark bg-opacity-50">
-                        <span class="text-light opacity-75">${m.label}:</span>
-                        <strong class="text-warning float-end">${countVal.toLocaleString('th-TH')}</strong>
+                    <div class="p-2 border rounded bg-white shadow-sm d-flex justify-content-between align-items-center">
+                        <span class="text-secondary fw-medium">${m.label}:</span>
+                        <strong class="text-primary">${countVal.toLocaleString('th-TH')}</strong>
                     </div>
                 </div>
             `;
