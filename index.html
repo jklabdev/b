@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-color: 1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard การใช้จ่ายงบประมาณ พ.ศ. 2570</title>
     <!-- Google Fonts: Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -85,7 +85,7 @@
         </button>
     </div>
 
-    <!-- Visitor Statistics Section (ย้ายขึ้นมาจาก Footer) -->
+    <!-- Visitor Statistics Section -->
     <div class="card border-0 shadow-sm rounded-3 mb-4 p-3 bg-white">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 border-bottom pb-2">
             <h5 class="fw-bold text-dark mb-0">
@@ -115,7 +115,7 @@
             <div class="p-3 bg-light rounded-3 border">
                 <div class="fw-bold small text-secondary mb-2"><i class="fa-solid fa-list-check me-1"></i>สถิติรายเดือน ประจำปีงบประมาณ พ.ศ. 2570 (ตุลาคม 2569 - กันยายน 2570)</div>
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-2 small" id="monthly-breakdown-list">
-                    <!-- Dynamic Render (ต.ค. 2569 - ก.ย. 2570) -->
+                    <!-- Dynamic Render -->
                 </div>
             </div>
         </div>
@@ -226,7 +226,7 @@
         </div>
     </div>
 
-    <!-- Table 2 (เพิ่มคอลัมน์ งบตามแผน) -->
+    <!-- Table 2 -->
     <div class="card table-custom border-0 mb-4">
         <div class="card-header bg-success text-white py-3">
             <h5 class="fw-bold mb-0"><i class="fa-solid fa-graduation-cap me-2"></i>งบพัฒนาคุณภาพการศึกษา (โครงการตามกลยุทธ์)</h5>
@@ -276,7 +276,7 @@
     </div>
 </div>
 
-<!-- Footer Section (ปรับปรุง footer ให้เหลือเฉพาะชื่อหน่วยงาน) -->
+<!-- Footer Section -->
 <footer class="bg-dark text-white py-4 mt-5 border-top border-secondary">
     <div class="container text-center">
         <div class="mb-2">
@@ -398,7 +398,7 @@
                 if (/^\d+\./.test(firstCol)) {
                     projectData.push({
                         name: firstCol,
-                        plan: parseNum(row[1]), // อ่านค่า งบตามแผน
+                        plan: parseNum(row[1]),
                         allocated: parseNum(row[2]),
                         spent: parseNum(row[3]),
                         remain: parseNum(row[4]),
@@ -499,7 +499,6 @@
         tbody.innerHTML = summaryRow + rows;
     }
 
-    // เรนเดอร์ Table 2 เพิ่มคอลัมน์ "งบตามแผน"
     function renderTable2(data, tot) {
         let tbody = document.querySelector('#table-project tbody');
         let summaryRow = `
@@ -644,65 +643,85 @@
         });
     }
 
-    // Visitor Statistics Management Logic (รอบปีงบประมาณ 2570: ต.ค. 2569 - ก.ย. 2570)
+    // ระบบนับสถิติผู้เข้าชมจริง (ปรับปรุงให้ถูกต้องและสอดคล้องตามจริง)
     function initVisitorStats() {
         const now = new Date();
-        const todayKey = now.toISOString().slice(0, 10);
-        const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const todayKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
+        const currentMonthKey = `${year}-${month}`; // YYYY-MM
 
-        let statsData = JSON.parse(localStorage.getItem('kan4_fiscal_2570_stats')) || {
+        // ดึงข้อมูลสถิติที่บันทึกไว้ในเบราว์เซอร์
+        let statsData = JSON.parse(localStorage.getItem('kan4_real_visitor_stats')) || {
             todayDate: todayKey,
-            todayCount: 18,
+            todayCount: 0,
             monthlyCount: {},
-            totalCount: 1450
+            totalCount: 0
         };
 
+        // หากข้ามวันใหม่ ให้รีเซ็ตยอดของวันนี้เป็น 0
         if (statsData.todayDate !== todayKey) {
             statsData.todayDate = todayKey;
-            statsData.todayCount = 1;
+            statsData.todayCount = 0;
         }
 
-        let hasVisited = sessionStorage.getItem('kan4_visited_session_2570');
+        // บันทึกการเข้าชม 1 ครั้งต่อ 1 เบราว์เซอร์เซสชัน
+        let hasVisited = sessionStorage.getItem('kan4_visited_session_active');
         if (!hasVisited) {
-            sessionStorage.setItem('kan4_visited_session_2570', 'true');
+            sessionStorage.setItem('kan4_visited_session_active', 'true');
             statsData.todayCount += 1;
             statsData.totalCount += 1;
             statsData.monthlyCount[currentMonthKey] = (statsData.monthlyCount[currentMonthKey] || 0) + 1;
-            localStorage.setItem('kan4_fiscal_2570_stats', JSON.stringify(statsData));
+            localStorage.setItem('kan4_real_visitor_stats', JSON.stringify(statsData));
         }
 
-        let thisMonthTotal = statsData.monthlyCount[currentMonthKey] || statsData.todayCount;
+        // ยอดเดือนนี้ต้องไม่น้อยกว่ายอดของวันนี้
+        let thisMonthCount = statsData.monthlyCount[currentMonthKey] || 0;
+        if (thisMonthCount < statsData.todayCount) {
+            thisMonthCount = statsData.todayCount;
+            statsData.monthlyCount[currentMonthKey] = thisMonthCount;
+            localStorage.setItem('kan4_real_visitor_stats', JSON.stringify(statsData));
+        }
 
+        // แสดงผลตัวเลขวันนี้, เดือนนี้, และรวมทั้งหมด
         document.getElementById('stat-today').innerText = statsData.todayCount.toLocaleString('th-TH');
-        document.getElementById('stat-month').innerText = thisMonthTotal.toLocaleString('th-TH');
+        document.getElementById('stat-month').innerText = thisMonthCount.toLocaleString('th-TH');
         document.getElementById('stat-total').innerText = statsData.totalCount.toLocaleString('th-TH');
 
-        // รายการเดือนตามปีงบประมาณ 2570 (ต.ค. 2569 - ก.ย. 2570)
+        // ผูกรายการเดือนตามปีงบประมาณ 2570 (ตุลาคม 2569 - กันยายน 2570)
         const fiscalMonths = [
-            { key: '2026-10', label: 'ต.ค. 2569', defaultCount: 180 },
-            { key: '2026-11', label: 'พ.ย. 2569', defaultCount: 195 },
-            { key: '2026-12', label: 'ธ.ค. 2569', defaultCount: 210 },
-            { key: '2027-01', label: 'ม.ค. 2570', defaultCount: 225 },
-            { key: '2027-02', label: 'ก.พ. 2570', defaultCount: 190 },
-            { key: '2027-03', label: 'มี.ค. 2570', defaultCount: 205 },
-            { key: '2027-04', label: 'เม.ย. 2570', defaultCount: 160 },
-            { key: '2027-05', label: 'พ.ค. 2570', defaultCount: 240 },
-            { key: '2027-06', label: 'มิ.ย. 2570', defaultCount: 280 },
-            { key: '2027-07', label: 'ก.ค. 2570', defaultCount: 260 },
-            { key: '2027-08', label: 'ส.ค. 2570', defaultCount: 295 },
-            { key: '2027-09', label: 'ก.ย. 2570', defaultCount: thisMonthTotal }
+            { key: '2026-10', label: 'ต.ค. 2569' },
+            { key: '2026-11', label: 'พ.ย. 2569' },
+            { key: '2026-12', label: 'ธ.ค. 2569' },
+            { key: '2027-01', label: 'ม.ค. 2570' },
+            { key: '2027-02', label: 'ก.พ. 2570' },
+            { key: '2027-03', label: 'มี.ค. 2570' },
+            { key: '2027-04', label: 'เม.ย. 2570' },
+            { key: '2027-05', label: 'พ.ค. 2570' },
+            { key: '2027-06', label: 'มิ.ย. 2570' },
+            { key: '2027-07', label: 'ก.ค. 2570' },
+            { key: '2027-08', label: 'ส.ค. 2570' },
+            { key: '2027-09', label: 'ก.ย. 2570' }
         ];
 
         let breakdownContainer = document.getElementById('monthly-breakdown-list');
         let monthlyHTML = '';
 
         fiscalMonths.forEach(m => {
-            let countVal = statsData.monthlyCount[m.key] !== undefined ? statsData.monthlyCount[m.key] : m.defaultCount;
+            let countVal = 0;
+            
+            // แสดงผลเฉพาะเดือนที่ถึงแล้วหรือผ่านไปแล้ว หากเดือนยังมาไม่ถึงจะแสดง 0
+            if (m.key <= currentMonthKey) {
+                countVal = statsData.monthlyCount[m.key] || 0;
+            } else {
+                countVal = 0; // เดือนในอนาคตที่ยังมาไม่ถึง
+            }
+
             monthlyHTML += `
                 <div class="col">
                     <div class="p-2 border rounded bg-white shadow-sm d-flex justify-content-between align-items-center">
                         <span class="text-secondary fw-medium">${m.label}:</span>
-                        <strong class="text-primary">${countVal.toLocaleString('th-TH')}</strong>
+                        <strong class="${countVal > 0 ? 'text-primary' : 'text-muted'}">${countVal.toLocaleString('th-TH')}</strong>
                     </div>
                 </div>
             `;
